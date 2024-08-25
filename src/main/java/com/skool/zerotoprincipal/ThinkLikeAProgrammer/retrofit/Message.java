@@ -2,7 +2,7 @@ package com.skool.zerotoprincipal.ThinkLikeAProgrammer.retrofit;
 
 import com.google.gson.annotations.SerializedName;
 
-class Message {
+public class Message {
     @SerializedName("role")
     private String role;
 

@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-class ChatRequest {
+public class ChatRequest {
     @SerializedName("model")
     private String model;
 
