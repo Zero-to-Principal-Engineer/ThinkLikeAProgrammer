@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.2'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id "com.github.node-gradle.node" version "7.0.2"
 }
 
 group = 'com.skool.zerotoprincipal'
@@ -34,3 +35,36 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+clean {
+	delete "$projectDir/src/main/resources/static"
+}
+
+node {
+	download = false
+	// node modules directory
+	nodeProjectDir = file("${project.projectDir}/src/main/typescript/frontend")
+}
+
+task appYarnInstall(type: YarnTask){
+	description = "Read package.json and install all dependencies"
+	workingDir = file("${project.projectDir}/src/main/typescript/frontend")
+	args =["install"]
+}
+
+task appYarnBuild(type: YarnTask){
+	description = "Builds frontend application"
+	workingDir = file("${project.projectDir}/src/main/typescript/frontend")
+	args =["run", "build"]
+}
+
+task copyToFrontend(type: Copy){
+	from "$projectDir/src/main/typescript/frontend/dist/"
+	into "$projectDir/src/main/resources/static/."
+}
+
+appYarnBuild.dependsOn appYarnInstall
+copyToFrontend.dependsOn appYarnBuild
+copyToFrontend.dependsOn clean
+compileJava.dependsOn copyToFrontend
+processResources.dependsOn copyToFrontend
