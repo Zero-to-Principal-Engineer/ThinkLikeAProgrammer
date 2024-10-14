@@ -31,14 +31,11 @@ const Chat: React.FC = () => {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/chat/completion', {
+            const res = await fetch('/api/chat/inference?user=' + JSON.stringify(input), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                // body: JSON.stringify({
-                //     message: input,
-                // }),
             });
 
             if (!res.ok) {

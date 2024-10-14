@@ -12,16 +12,44 @@ import java.util.Arrays;
 @Service
 public class LocalChatService {
     private final ChatService chatService;
+    private final Message systemMessage = new Message("system", "Act like a Principal Engineer specializing in Java. Only answer in complete sentences. Do not include a summary and do not include any follow up questions.");
 
     @Autowired
     public LocalChatService(ChatService chatService) {
         this.chatService = chatService;
     }
 
+    public String getChatCompletion(String userQuery) {
+        // Create
+        Message userMessage = new Message("user", userQuery);
+
+        // Create request
+        ChatRequest chatRequest = new ChatRequest(
+                "NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF",
+                Arrays.asList(systemMessage, userMessage),
+                0.7,
+                150,
+                false
+        );
+
+        // Make the API call
+        Call<ResponseBody> call = chatService.getChatCompletion(chatRequest);
+
+        try {
+            Response<ResponseBody> response = call.execute();
+            if (response.isSuccessful()) {
+                return response.body().string();
+            } else {
+                throw new RuntimeException("Request failed with status code: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error executing request", e);
+        }
+    }
+
     public String getChatCompletion() {
 
         // Create
-        Message systemMessage = new Message("system", "Act like a Principal Engineer specializing in Java. Only answer in complete sentences. Do not include a summary and do not include any follow up questions.");
         Message userMessage = new Message("user", "Briefly describe annotation processors in 100 words or less.");
 
         // Create request
@@ -39,7 +67,6 @@ public class LocalChatService {
         try {
             Response<ResponseBody> response = call.execute();
             if (response.isSuccessful()) {
-                System.out.println(response.body());
                 return response.body().string();
             } else {
                 throw new RuntimeException("Request failed with status code: " + response.code());
